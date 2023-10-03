@@ -1,12 +1,12 @@
 const passport = require("passport");
 const GithubStrategy = require("passport-github2");
-const userModel = require("../dao/models/students.model.js");
+const userModel = require("../models/users.model");
 const {  GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, API_VERSION } = require("./config");
 
 
 
 
-const initializePassport = () => {
+const initializePassportGithub = () => {
     passport.use(
     "github",
     new GithubStrategy(
@@ -20,7 +20,6 @@ const initializePassport = () => {
           console.log("PROFILE INFO ******", profile);
             let user = await userModel.findOne({ email: profile._json?.email });
             if (!user) {
-                let cart = await cartservice.createCart();
             let addNewUser = {
                 firstName: profile._json.name,
                 lastName: "",
@@ -28,7 +27,6 @@ const initializePassport = () => {
                 username: profile._json?.email,
                 email: profile._json?.email,
                 password: "",
-                cartId: cart.cart._id, 
             };
             let newUser = await userModel.create(addNewUser);
             done(null, newUser);
@@ -53,4 +51,4 @@ const initializePassport = () => {
     });
 };
 
-module.exports = initializePassport;
+module.exports = initializePassportGithub;

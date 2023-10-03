@@ -1,21 +1,25 @@
-ersion: "3.0"
+version: '3.0'
 
-# Services to run
 services:
-  mongo_strategy: # name of BD service
+  mongo:
     image: mongo
-    container_name: node_email
+    container_name: TerceraPreEntrega
     ports:
       - 27017:27017
     volumes:
-      - mongonodemail:/data/configdb
-      - mongonodemail:/data/db
-    # restart: always
+      - TerceraPreEntrega:/data/configdb
+      - TerceraPreEntrega:/data/db
 
-networks:
-  nodejs-network:
-    name: nodejs-network
-    driver: bridge
+  api:
+    build: .
+    container_name: api_container
+    ports:
+      - 9000:9000
+    depends_on:
+      - mongo
+    restart: always
+    volumes:
+      - .:/usr/src/app
 
 volumes:
-  mongonodemail:
+  TerceraPreEntrega: {}
