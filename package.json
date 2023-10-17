@@ -52,11 +52,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/guillermoaguzzi/aguzzi_preentrega_backend_2.git"
+    "url": "git+https://github.com/alancjto/TerceraEntrega-pf"
   },
   "bugs": {
-    "url": "https://github.com/guillermoaguzzi/aguzzi_preentrega_backend_2/issues"
+    "url": "https://github.com/alancjto/TerceraEntrega-pf/issues"
   },
-  "homepage": "https://github.com/guillermoaguzzi/aguzzi_preentrega_backend_2#readme",
+  "homepage": "https://github.com/alancjto/TerceraEntrega-pf#readme",
   "description": ""
 }
