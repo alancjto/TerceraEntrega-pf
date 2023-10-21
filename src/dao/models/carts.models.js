@@ -19,12 +19,13 @@ const cartsSchema = new mongoose.Schema({
   }
 });
 
-cartsSchema.pre("find", function () {
+cartsSchema.pre(["find", "findOne"], function () {
   this.populate({
     path: "products.product",
-    options: { strictPopulate: false }
+    options: { strictPopulate: true }
   });
 });
+
 
 const cartsModel = mongoose.model(cartsCollection, cartsSchema);
 module.exports = cartsModel;
