@@ -15,7 +15,7 @@ const initializePassportGithub = () => {
       {
         clientID: GITHUB_CLIENT_ID,
         clientSecret: GITHUB_CLIENT_SECRET,
-        callbackURL: `https://terceraentrega-pf.railway.internal/api/v1/session/github/callback`,
+        callbackURL: `https://terceraentrega-pf-production-5480.up.railway.app/api/v1/session/github/callback`,
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
