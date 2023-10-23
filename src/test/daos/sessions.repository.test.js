@@ -1,20 +1,11 @@
 const mongoose = require('mongoose');
-const { DB_HOST, DB_PORT, DB_NAME } = require("../../config/config");
+const { DB_USER, DB_PASSWORD} = require("../../config/config");
 const {expect} = require('chai');
-const SessionService = require('../../repository/sessions.repository');
+const SessionService = require('../../services/sessions.service');
 const { beforeEach } = require('mocha');
 
-const MONGO_URL = `mongodb://${DB_HOST}:${DB_PORT}/${DB_NAME}`;
+const MONGO_URL = `mongodb+srv://${DB_USER}:${DB_PASSWORD}@coderhousebackend.rnpebhq.mongodb.net/`;
 
-/* const user1 = {
-    firstName: "Louis",
-    lastName: "Armstrong",
-    age: "122",
-    username: "larms",
-    email: "satchmo@gmail.com",
-    password: "chalala",
-    role: "ADMIN"
-}; */
 
 mongoose.connection.close()
 
@@ -49,5 +40,4 @@ it('should register a new user', () => {
 
     const newUser = sessionService.registerUser({ body: user1 });
         expect(newUser).to.exist;
-        /* expect(newUser).to.eq(200); */
 });

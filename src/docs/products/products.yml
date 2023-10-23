@@ -140,14 +140,14 @@ components:
         - stock
         - category
       example:
-        _id: "64f3568a564f7aa08e890d44"
-        title: "Washburn X Series Electric Guitar"
-        description: "A versatile electric guitar with great playability and tone"
-        code: "WX200"
-        price: 1200
+        _id: "64865242a87bc2cbf60d3eca"
+        title: "Galaxy s23"
+        description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorum perspiciatis repellat necessitatibus quidem mollitia enim nulla possimus, assumenda vitae esse pariatur voluptas, illo suscipit soluta temporibus autem facilis culpa? Eaque!"
+        code: "ABC123"
+        price: 54
         status: true
         stock: 10
-        category: "Electric Guitar"
+        category: "Smarphone"
 
     ProductResponse:
       type: object

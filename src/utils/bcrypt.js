@@ -6,8 +6,7 @@ const createHashValue = async (val) => {
 };
 
 const isValidPasswd = async (psw, encryptedPsw) => {
-  const validValue = await bcrypt.compareSync(psw, encryptedPsw);
-  return validValue;
+  return await bcrypt.compareSync(psw, encryptedPsw);
 };
 
 module.exports = {
