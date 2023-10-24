@@ -10,8 +10,7 @@ const session = require("express-session");
 const compression = require ("express-compression");
 const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
-const swaggerOpts = require("./config/swagger.config")
-
+const swaggerOpts = require("./config/swagger.config");
 const passport = require("passport");
 const initializePassportJWT = require("./config/passport.strategy.jwt.config");
 const initializePassportGithub = require("./config/passport.strategy.github.config");
