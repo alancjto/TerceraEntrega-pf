@@ -6,7 +6,7 @@ const swaggerOpts = {
             version: "1.0.0",
             description: "OAS 3.0",
             contact: {
-                name: "Guille Aguzi",
+                name: "Alan Da Cruz",
             },
         },
         servers: [
