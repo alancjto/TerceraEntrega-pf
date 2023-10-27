@@ -2,17 +2,17 @@ const express  = require("express");
 const cors = require("cors");
 const displayRoutes = require("express-routemap");
 const handlebars = require("express-handlebars");
-const { DB_USER, DB_PASSWORD, DB_NAME, NODE_ENV, PORT, API_VERSION } = require("./config/config");
+const { DB_USER, DB_PASSWORD, NODE_ENV, PORT, API_VERSION } = require("./config/config");
 const cookieParser = require("cookie-parser");
 const mongoStore = require("connect-mongo");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const compression = require ("express-compression");
-const passport = require("passport");
 const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 const swaggerOpts = require("./config/swagger.config")
 
+const passport = require("passport");
 const initializePassportJWT = require("./config/passport.strategy.jwt.config");
 const initializePassportGithub = require("./config/passport.strategy.github.config");
 const { setLogger } = require ("./utils/logger.js");
@@ -92,7 +92,7 @@ class App {
             store: mongoStore.create({
                 mongoUrl: this.MONGO_URL,
                 mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
-                ttl: 60,
+                ttl: 1800,
             }),
             secret: "secretS3ss10n",
             resave: false,
@@ -120,7 +120,7 @@ class App {
         this.httpServer.listen(this.port, () => {
             displayRoutes(this.app);
             console.log(`=================================`);
-            console.log(`======= ENV: ${this.env}${DB_USER}:${DB_PASSWORD} ========`);
+            console.log(`======= ENV: ${this.env} ========`);
             console.log(`🚀 App listening on the port ${this.port}`);
             console.log(`=================================`);
         });
