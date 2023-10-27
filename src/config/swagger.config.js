@@ -1,3 +1,5 @@
+const {NODE_ENV, DEV_URL, PROD_URL} = require("../config/config");
+
 const swaggerOpts = {
     swaggerDefinition: {
         openapi: '3.0.0',
@@ -11,7 +13,7 @@ const swaggerOpts = {
         },
         servers: [
             {
-                url: "http://localhost:8000/api/v1/",
+                url: `https://coderhousebackend-${NODE_ENV}-${PROD_URL}.up.railway.app/api/v1`,
             },
         ],
     },

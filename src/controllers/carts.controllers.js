@@ -1,218 +1,209 @@
-const cartsData = require("../db/carts.json");
-const CartService = require ("../services/carts.service");
-const ProductService = require ("../services/products.service");
-const { HttpResponse } = require("../middleware/errors.middleware");
-const { EnumErrors } = require("../middleware/errors.middleware");
-const { StatusCodes } = require("http-status-codes");
+import CartService from "../services/carts.service.js";
+import ProductsService from "../services/products.service.js";
+import { EnumErrors, EnumSuccess, ErrorLevels, HttpResponse } from "../middleware/error-rta/error-layer-rta.js"
+import { appConfig } from "../config/config.js"
 
-class CartCtrl {
-    constructor() {
-        this.productService = new ProductService();
+const {PERSISTENCE} = appConfig
+
+
+class CartsController {
+    constructor(){
         this.cartService = new CartService();
-        this.httpResp = new HttpResponse();
+        this.httpResponse = new HttpResponse();
+        this.productService = new ProductsService();
     }
 
-    insertCarts = async (req, res ) => {
-        console.log("insertCarts from CONTROLLER executed");
-        
-        try {
-            const carts = await this.cartService.insertCarts(cartsData);
-            return res.json({ message: `All carts successfully inserted from file system`, carts});
-        } catch (error) {
-            return res.status(500).json({ message: error.message });
+    getIdCarts = async (req, res) => {
+      try {
+        const cart = await this.cartService.getIdCarts(req);    
+        if (PERSISTENCE === 'MONGO') {
+          return res.render("carts/carts", { cart });
+        } else if (PERSISTENCE === 'FILESYSTEM') {
+          return res.render("carts/cartsFs", { cart });
+        } else {
+          return res.render("carts/carts", { cart });
         }
-    }
-
-    getAllCarts = async (req, res) => {
-        console.log("getAllCarts from CONTROLLER executed");
-
-        try {
-            const carts = await this.cartService.getAllCarts();
-            return res.json({ message: `All carts successfully fetched`, carts});
-        } catch (error) {
-            return res.status(500).json({ message: error.message });
-        }
-    };
-
-    getCartById = async (req, res) => {
-        console.log("getCartById from CONTROLLER executed");
-
-        try {
-            const cart = await this.cartService.getCartById(req.params.cid);
-
-            if (!cart) {
-                return res.status(404).json({
-                    message: `cart ID ${req.params.cid} not found`,
-                });
-                }
-
-            return res.json({ message: `cart ID ${req.params.cid} successfully fetched`, cart });
-        } catch (error) {
-            return res.status(500).json({ message: error.message });
-        }
-    };
-
-    createCart = async (req, res) => {
-        console.log("createCart from CONTROLLER executed");
-
-        try {
-            const newCart = await this.cartService.createCart(req.body);
-            return res.json({
-                message: `Cart created successfully`,
-                cart: newCart,
-            });
-        } catch (error) {
-            return res.status(500).json({ message: error.message });
-        }
-    };
-
-    purchaseCart = async (req, res) => {
-        console.log("purchaseCart from CONTROLLER executed");
-
-        try {
-            const {cart, email} = req.session.user._doc;
-
-            const ticket = await this.cartService.purchaseCart(cart, email);
-            return res.json({
-                message: `Ticket generated successfully`,
-                data: ticket,
-            });
-        } catch (error) {
-            return res.status(500).json({ message: error.message });
-        }
-    };
-
-    updateCartById = async (req, res) => {
-        console.log("updateCartById from CONTROLLER executed");
-
-        const cartData = req.body;
-        try {
-            const cartToUpdate = await this.cartService.getCartById(req.params.cid);
-
-            if (!cartToUpdate) {
-                return res.status(404).json({
-                    message: `cart ID ${req.params.cid} not found`,
-                });
-            }
-
-            for (const item of cartData) {
-                const product = await this.productService.getProductById(item.product);
-    
-                if (!product) {
-                    return res.status(404).json({
-                        message: `Product ID ${item.product} not found`,
-                    });
-                }
-            }
-            
-            const updatedCart = await this.cartService.updateCartById(req.params.cid, cartData);
-
-            if(updatedCart === undefined){
-                return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-                    message: `${EnumErrors.CONTROLLER_ERROR} - ${error.message}`,
-                });
-            }else {
-
-            return res.json({
-                message: `cart ID ${req.params.cid} successfully updated`,
-                cart: updatedCart,
-                });
-            }
-        } catch (error) {
-            return res.status(500).json({ message: error.message });
-        }
-    };
-
-
-    updateProductQuantity = async (req, res) => {
-        console.log("updateProductQuantity from CONTROLLER executed");
-        
-        try {
-            const response = await this.cartService.updateProductQuantity(req.params.cid, req.params.pid, req.body);
-
-            switch (response.status) {
-                case StatusCodes.BAD_REQUEST:
-                    return this.httpResp.BadRequest(res, response.message);
-                case StatusCodes.INTERNAL_SERVER_ERROR:
-                    return this.httpResp.Error(res, response.message);
-                case StatusCodes.OK:
-                    return res.json({
-                    message: response.message,
-                    cart: response.data,
-                    });
-                default:
-                    return this.httpResp.Error(res, response.message);
-            }
-            
-        } catch (error) {
-            return res.status(500).json({ message: error.message });
-        }
-    };
-
-    deleteProductById = async (req, res) => {
-        console.log("deleteProductById from CONTROLLER executed");
-        
-        try {
-            const response = await this.cartService.deleteProductById(req.params.cid, req.params.pid);
-
-            switch (response.status) {
-                case StatusCodes.BAD_REQUEST:
-                    return this.httpResp.BadRequest(res, response.message);
-                case StatusCodes.OK:
-                    return res.json({
-                    message: response.message,
-                    });
-                default:
-                    return this.httpResp.Error(res, response.message);
-            }
-        } catch (error) {
-            return res.status(500).json({ message: error.message });
-        }
-    };
-
-    deleteCartProductListById = async (req, res) => {
-        console.log("deleteCartProductListById from CONTROLLER executed");
-        
-        try {
-        const listToDelete = await this.cartService.deleteCartProductListById(req.params.cid)
-        
-        if (!listToDelete) {
-            return res.status(404).json({
-                message: `cart ID ${req.params.cid} not found`,
-            });
-            }
-
-        return res.json({
-            message: `Products list from cart ID ${req.params.cid} successfully deleted`,
-        })
-        } catch (error) {
-        return res.status(500).json({ message: error.message });
-        }
-    }
-
-    deleteCartById = async (req, res) => {
-        console.log("deleteCartById from CONTROLLER executed");
-        
-        try {
-        const response = await this.cartService.deleteCartById(req.params.cartId)
-        
-        switch (response.status) {
-            case StatusCodes.BAD_REQUEST:
-              return this.httpResp.BadRequest(res, response.message);
-            case StatusCodes.OK:
-              return res.json({
-                message: response.message,
-                product: response.data,
-              });
-            default:
-              return this.httpResp.Error(res, response.message);
-          }
       } catch (error) {
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-          message: `${EnumErrors.CONTROLLER_ERROR} - ${error.message}`,
-        });
+        const errorCode = EnumErrors.CONTROLLER_ERROR;
+        req.logger[ErrorLevels[errorCode] || "error"](
+          `${errorCode} - No se pudo obtener cart en la base de datos ${error}`,
+          {
+            errorCode,
+            errorStack: error.stack,
+          }
+        );
+        return this.httpResponse.NotFound(
+          res,
+          `${EnumErrors.INVALID_PARAMS} - No se pudo obtener cart en la base de datos`,
+          { error: `${error}` }
+        );
       }
     };
-};
+    
+    getAllCarts = async (req, res) => {
+        try {
+            const carts = await this.cartService.getAllCarts(req); 
+            return this.httpResponse.OK(res, `${EnumSuccess.SUCCESS}`, {carts});        
+        } catch (error) {
+            const errorCode = EnumErrors.DATABASE_ERROR;
+            req.logger[ErrorLevels[errorCode] || "error"](
+              `${errorCode} - No se pudo obtener los carts en la base de datos`,
+              {
+                errorCode,
+                errorStack: error.stack,
+              }
+            );            
+            return this.httpResponse.NotFound(
+              res,
+              `${EnumErrors.DATABASE_ERROR} -  No se pudo obtener los carts en la base de datos `, 
+            { error: `${error}` }
+          );   
+          }
+    }
+    
+      addToCart = async (req, res) => {
+        try {
+          const users = req.user;
+            if (users.role === "PREMIUM") {
+                const products = await this.productService.getIdProducts(req);
+                if (products.length > 0) {
+                const product = products[0];
+                const ownerId = product.owner.toString();
+                if (ownerId === users.id) {
+                  return this.httpResponse.Forbbiden(
+                    res,
+                    `${EnumErrors.FORBIDDEN_ERROR} - No puedes agregar tu propio producto al carrito`
+                  );
+                }
+                }
+            }
+          const addCartQuan = await this.cartService.addToCart(req);
+          return this.httpResponse.Create(res, `${EnumSuccess.SUCCESS}`, {payload: addCartQuan});    
+        } catch (error) {
+          const errorCode = EnumErrors.DATABASE_ERROR;
+          req.logger[ErrorLevels[errorCode] || "error"](
+            `${errorCode} - Error al procesar la petición POST: ${error}`,
+            {
+              errorCode,
+              errorStack: error.stack,
+            }
+          );
+          return this.httpResponse.NotFound(
+            res,
+            `${EnumErrors.DATABASE_ERROR} -  Error al procesar la petición POST `, 
+          { error: `${error}` }
+        ); 
+        }
+      };
 
-module.exports =  CartCtrl;
+
+    updateCarts = async (req, res) => {
+        try {
+          const updateCart = await this.cartService.updateCarts(req);   
+          return this.httpResponse.OK(res, `${EnumSuccess.SUCCESS}`, {payload: updateCart});    
+        } catch (error){
+          const errorCode = EnumErrors.DATABASE_ERROR;
+          req.logger[ErrorLevels[errorCode] || "error"](
+            `${errorCode} - Error al procesar la petición PUT: ${error}`,
+            {
+              errorCode,
+              errorStack: error.stack,
+            }
+          );
+          return this.httpResponse.NotFound(
+            res,
+            `${EnumErrors.DATABASE_ERROR} -  Error al procesar la petición PUT `, 
+          { error: `${error}` }
+        ); 
+        }
+    } 
+
+    updateCartsComplet = async (req,res) => {
+        try {
+          const updateCartCompl = await this.cartService.updateCartsComplet(req); 
+          return this.httpResponse.Create(res, `${EnumSuccess.SUCCESS}`, {payload: updateCartCompl});    
+        } catch (error){
+          const errorCode = EnumErrors.DATABASE_ERROR;
+          req.logger[ErrorLevels[errorCode] || "error"](
+            `${errorCode} - Error al procesar la petición PUT: ${error}`,
+            {
+              errorCode,
+              errorStack: error.stack,
+            }
+          );        
+          return this.httpResponse.NotFound(
+            res,
+            `${EnumErrors.DATABASE_ERROR} -  Error al procesar la petición PUT `, 
+          { error: `${error}` }
+        ); 
+        }
+    }
+
+    deleteProductCarts = async (req,res) => {
+      try {
+        const deleteProductCart = await this.cartService.deleteProductCarts(req); 
+        return this.httpResponse.OK(res, `${EnumSuccess.SUCCESS}`, {payload: deleteProductCart});    
+      } catch (error){
+        const errorCode = EnumErrors.DATABASE_ERROR;
+        req.logger[ErrorLevels[errorCode] || "error"](
+          `${errorCode} - Error al procesar la petición DELETE: ${error}`,
+          {
+            errorCode,
+            errorStack: error.stack,
+          }
+        );    
+        return this.httpResponse.NotFound(
+          res,
+          `${EnumErrors.DATABASE_ERROR} -  Error al procesar la petición DELETE `, 
+        { error: `${error}` }
+      ); 
+      }
+    }
+
+    deleteOneProdCarts = async (req,res) => {
+      try {
+        const deleteOneProdCart = await this.cartService.deleteOneProdCarts(req); 
+        return this.httpResponse.OK(res, `${EnumSuccess.SUCCESS}`, {payload: deleteOneProdCart });    
+      } catch (error){
+        const errorCode = EnumErrors.DATABASE_ERROR;
+        req.logger[ErrorLevels[errorCode] || "error"](
+          `${errorCode} - Error al procesar la petición DELETE: ${error}`,
+          {
+            errorCode,
+            errorStack: error.stack,
+          }
+        );        
+        return this.httpResponse.NotFound(
+          res,
+          `${EnumErrors.DATABASE_ERROR} -  Error al procesar la petición DELETE `, 
+        { error: `${error}` }
+      );
+      }
+    }
+
+    purchaseCart = async (req, res) => {
+      try {
+        const cartId = req.params.cid;
+        const result = await this.cartService.purchaseCart(req);
+        return this.httpResponse.OK(res, `${EnumSuccess.SUCCESS}`, {payload: result });    
+      } catch (error) {
+        const errorCode = EnumErrors.DATABASE_ERROR;
+        req.logger[ErrorLevels[errorCode] || "error"](
+          `${errorCode} - Error al procesar la petición POST: ${error}`,
+          {
+            errorCode,
+            errorStack: error.stack,
+          }
+        );       
+        return this.httpResponse.NotFound(
+          res,
+          `${EnumErrors.DATABASE_ERROR} -  Error al procesar la petición POST `, 
+        { error: `${error}` }
+      );
+      }
+    };
+
+}
+
+
+export default CartsController;

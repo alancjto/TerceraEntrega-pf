@@ -1,80 +1,68 @@
 openapi: 3.0.0
 info:
-  title: Mailing Documentation
-  version: 1.0.0
+  version: "1.0.0"
+  title: "Mailing API"
+  description: "API for sending emails and SMS messages"
+
 paths:
   /mailing/email/send:
     post:
       summary: Send an email
+      description: Send an email to the specified email address.
       tags:
         - Mailing
       requestBody:
+        description: Email data
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EmailRequest'
+              $ref: "#/definitions/EmailData"
+        examples:
+          emailExample:
+            value:
+              email: "recipient@example.com"
       responses:
-        '200':
+        200:
           description: Email sent successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
+        500:
+          description: Internal server error
+
   /mailing/sms/send:
     post:
       summary: Send an SMS
+      description: Send an SMS message to the specified phone number.
       tags:
         - Mailing
       requestBody:
+        description: SMS data
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SmsRequest'
+              $ref: "#/definitions/SMSData"
+        examples:
+          smsExample:
+            value:
+              name: "John Doe"
+              phone: "+1234567890"
       responses:
-        '200':
+        200:
           description: SMS sent successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-components:
-  schemas:
-    EmailRequest:
-      type: object
-      properties:
-        email:
-          type: string
-          description: The email address of the recipient.
-      required:
-        - email
-      example:
-        email: "recipient@example.com"
-    SmsRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          description: The recipient's name.
-        phone:
-          type: string
-          description: The recipient's phone number.
-      required:
-        - name
-        - phone
-      example:
-        name: "John Doe"
-        phone: "+1234567890"
-    MessageResponse:
-      type: object
-      properties:
-        ok:
-          type: boolean
-          description: Indicates whether the operation was successful.
-        message:
-          type: string
-          description: A message describing the result of the operation.
-      example:
-        ok: true
-        message: "Email sent to recipient@example.com"
+        500:
+          description: Internal server error
+
+definitions:
+  EmailData:
+    type: object
+    properties:
+      email:
+        type: string
+
+  SMSData:
+    type: object
+    properties:
+      name:
+        type: string
+      phone:
+        type: string

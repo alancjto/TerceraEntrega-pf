@@ -1,4 +1,3 @@
-/* const  UserDto = require ("../dto/user.dto"); */
 const UserService = require ("../services/users.service");
 const handlePolicies = require("../middleware/handle-policies.middleware");
 const { HttpResponse } = require("../middleware/errors.middleware");

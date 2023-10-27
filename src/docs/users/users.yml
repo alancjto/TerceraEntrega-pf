@@ -1,207 +1,250 @@
 openapi: 3.0.0
 info:
-  title: Users Documentation
-  version: 1.0.0
+  version: "1.0.0"
+  title: "User Management API"
+  description: "API for managing users in your application"
+
+securityDefinitions:
+  BearerToken:
+    type: apiKey
+    name: Authorization
+    in: header
+
 paths:
   /users/current:
     get:
       summary: Get the current user
+      description: Retrieve information about the currently logged-in user.
       tags:
         - Users
       responses:
-        '200':
-          description: Current user retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
+        200:
+          description: Successful operation
+          schema:
+            $ref: "#/definitions/User"
+        401:
+          description: Unauthorized
+        500:
+          description: Internal server error
+
   /users:
     get:
       summary: Get all users
+      description: Retrieve a list of all users in the system.
       tags:
         - Users
+      security:
+        - bearerAuth: []
       responses:
-        '200':
-          description: All users retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UsersListResponse'
+        200:
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/User"
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        500:
+          description: Internal server error
+
     post:
       summary: Create a new user
+      description: Create a new user in the system.
       tags:
         - Users
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserRegistration'
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user
+          in: body
+          description: User object to be created
+          required: true
+          schema:
+            $ref: "#/definitions/UserInput"
+          example:
+            firstName: "Leo"
+            lastName: "Mata"
+            age: 26
+            username: "lmata"
+            email: "lmata@gmail.com"
+            role: "ADMIN"
       responses:
-        '201':
+        201:
           description: User created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        500:
+          description: Internal server error
+
   /users/{uid}:
     get:
       summary: Get a user by ID
+      description: Retrieve user information by their ID.
       tags:
         - Users
+      security:
+        - bearerAuth: []
       parameters:
-        - in: path
-          name: uid
+        - name: uid
+          in: path
+          description: ID of the user to retrieve
           required: true
-          schema:
-            type: string
+          type: string
       responses:
-        '200':
-          description: User retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
-        '404':
+        200:
+          description: Successful operation
+          schema:
+            $ref: "#/definitions/User"
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
           description: User not found
+        500:
+          description: Internal server error
+
     put:
       summary: Update a user by ID
+      description: Update user information by their ID.
       tags:
         - Users
+      security:
+        - bearerAuth: []
       parameters:
-        - in: path
-          name: uid
+        - name: uid
+          in: path
+          description: ID of the user to update
+          required: true
+          type: string
+        - name: user
+          in: body
+          description: User object with updated information
           required: true
           schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserUpdate'
+            $ref: "#/definitions/UserInput"
       responses:
-        '200':
+        200:
           description: User updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
-        '404':
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
           description: User not found
+        500:
+          description: Internal server error
+
     delete:
       summary: Delete a user by ID
+      description: Delete a user by their ID.
       tags:
         - Users
+      security:
+        - bearerAuth: []
       parameters:
-        - in: path
-          name: uid
+        - name: uid
+          in: path
+          description: ID of the user to delete
           required: true
-          schema:
-            type: string
+          type: string
       responses:
-        '200':
+        200:
           description: User deleted successfully
-        '404':
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
           description: User not found
-components:
-  schemas:
-    UserRegistration:
-      type: object
-      properties:
-        firstName:
-          type: string
-          description: The first name of the user.
-        lastName:
-          type: string
-          description: The last name of the user.
-        age:
-          type: integer
-          description: The age of the user.
-        username:
-          type: string
-          description: The username chosen by the user.
-        email:
-          type: string
-          description: The email address of the user.
-        password:
-          type: string
-          description: The password chosen by the user.
-        role:
-          type: string
-          description: The role of the user (e.g., "USER", "ADMIN", "PUBLIC").
-      required:
-        - firstName
-        - lastName
-        - age
-        - username
-        - email
-        - password
-        - role
-    UserUpdate:
-      type: object
-      properties:
-        firstName:
-          type: string
-          description: The updated first name of the user.
-        lastName:
-          type: string
-          description: The updated last name of the user.
-        age:
-          type: integer
-          description: The updated age of the user.
-        username:
-          type: string
-          description: The updated username chosen by the user.
-        email:
-          type: string
-          description: The updated email address of the user.
-        role:
-          type: string
-          description: The updated role of the user (e.g., "USER", "ADMIN", "PUBLIC").
-    UserResponse:
-      type: object
-      properties:
-        message:
-          type: string
-          description: A message describing the operation result.
-        user:
-          $ref: '#/components/schemas/User'
-    UsersListResponse:
-      type: object
-      properties:
-        message:
-          type: string
-          description: A message describing the operation result.
-        users:
-          type: array
-          items:
-            $ref: '#/components/schemas/User'
-    User:
-      type: object
-      properties:
-        firstName:
-          type: string
-          description: The first name of the user.
-        lastName:
-          type: string
-          description: The last name of the user.
-        age:
-          type: integer
-          description: The age of the user.
-        username:
-          type: string
-          description: The username chosen by the user.
-        email:
-          type: string
-          description: The email address of the user.
-        role:
-          type: string
-          description: The role of the user (e.g., "USER", "ADMIN", "PUBLIC").
-      example:
-        firstName: "Leo"
-        lastName: "Mata"
-        age: 26
-        username: "lmata"
-        email: "lmata@gmail.com"
-        role: "ADMIN"
+        500:
+          description: Internal server error
+
+  /users/:
+    delete:
+      summary: Delete inactive users
+      description: Delete inactive users in the system.
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Inactive users processed
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/InactiveUserReport"
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        500:
+          description: Error processing inactive users
+
+definitions:
+  UserInput:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      age:
+        type: integer
+      username:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      lastActivity:
+        type: string
+
+  User:
+    type: object
+    properties:
+      _id:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      age:
+        type: integer
+      username:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      cart:
+        type: string
+      role:
+        type: string
+      lastActivity:
+        type: string
+
+  InactiveUserReport:
+    type: object
+    properties:
+      email:
+        type: string
+      activity:
+        type: string
+      action:
+        type: string

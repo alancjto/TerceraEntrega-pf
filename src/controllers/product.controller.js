@@ -1,4 +1,3 @@
-const  ProductDto = require ("../dto/product.dto");
 const productsData = require("../db/products.json");
 const ProductService = require ("../services/products.service");
 const handlePolicies = require("../middleware/handle-policies.middleware");
