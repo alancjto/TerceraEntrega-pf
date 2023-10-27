@@ -1,161 +1,134 @@
 openapi: 3.0.0
 info:
-  title: Sessions Documentation
-  version: 1.0.0
+  version: "1.0.0"
+  title: "Session API"
+  description: "API for user authentication and session management"
+
 paths:
+  /session/login:
+    get:
+      summary: Get login page
+      description: Retrieve the login page for user authentication.
+      tags:
+        - Authentication
+      responses:
+        200:
+          description: Successful operation
+
   /session/register:
     get:
-      summary: Render the registration page
+      summary: Get registration page
+      description: Retrieve the registration page for new user registration.
       tags:
-        - Sessions
+        - Authentication
       responses:
-        '200':
-          description: Registration page rendered successfully
+        200:
+          description: Successful operation
+
     post:
       summary: Register a new user
+      description: Register a new user with the provided information.
       tags:
-        - Sessions
+        - Authentication
       requestBody:
+        description: User registration data
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserRegistration'
+              $ref: "#/definitions/UserRegistration"
+        examples:
+          userRegistration:
+            value:
+              firstName: "John"
+              lastName: "Doe"
+              email: "johndoe@example.com"
+              username: "johndoe"
+              password: "password123"
+              role: "USER"
       responses:
-        '201':
+        200:
           description: User registered successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
-  /session/login:
+                $ref: "#/definitions/User"
+        400:
+          description: Bad request
+        500:
+          description: Internal server error
+
+  /session/logout:
     get:
-      summary: Render the login page
+      summary: Logout user
+      description: Logout the currently authenticated user.
       tags:
-        - Sessions
+        - Authentication
       responses:
-        '200':
-          description: Login page rendered successfully
-    post:
-      summary: Log in a user
-      tags:
-        - Sessions
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserLogin'
-      responses:
-        '200':
-          description: User logged in successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
+        200:
+          description: User logged out successfully
+        500:
+          description: Internal server error
+
   /session/github:
     get:
       summary: Initiate GitHub login
+      description: Initiate the GitHub login process for user authentication.
       tags:
-        - Sessions
+        - Authentication
       responses:
-        '200':
-          description: Redirect to GitHub login page
+        302:
+          description: Redirect to GitHub for authentication
+        500:
+          description: Internal server error
+
   /session/github/callback:
     get:
-      summary: GitHub login callback
+      summary: GitHub callback
+      description: Handle the callback after GitHub authentication.
       tags:
-        - Sessions
+        - Authentication
       responses:
-        '200':
-          description: Redirect to the application after GitHub login
-  /session/logout:
-    get:
-      summary: Log out the user
-      tags:
-        - Sessions
-      responses:
-        '200':
-          description: User logged out successfully
-components:
-  schemas:
-    UserRegistration:
-      type: object
-      properties:
-        firstName:
-          type: string
-          description: The first name of the user.
-        lastName:
-          type: string
-          description: The last name of the user.
-        age:
-          type: integer
-          description: The age of the user.
-        username:
-          type: string
-          description: The username chosen by the user.
-        email:
-          type: string
-          description: The email address of the user.
-        password:
-          type: string
-          description: The password chosen by the user.
-        role:
-          type: string
-          description: The role of the user (e.g., "USER", "ADMIN", "PUBLIC").
-      required:
-        - firstName
-        - lastName
-        - age
-        - username
-        - email
-        - password
-        - role
-    UserLogin:
-      type: object
-      properties:
-        email:
-          type: string
-          description: The email address of the user.
-        password:
-          type: string
-          description: The password provided by the user for login.
-      required:
-        - email
-        - password
-    UserResponse:
-      type: object
-      properties:
-        message:
-          type: string
-          description: A message describing the operation result.
-        user:
-          $ref: '#/components/schemas/User'
-    User:
-      type: object
-      properties:
-        firstName:
-          type: string
-          description: The first name of the user.
-        lastName:
-          type: string
-          description: The last name of the user.
-        age:
-          type: integer
-          description: The age of the user.
-        username:
-          type: string
-          description: The username chosen by the user.
-        email:
-          type: string
-          description: The email address of the user.
-        role:
-          type: string
-          description: The role of the user (e.g., "USER", "ADMIN", "PUBLIC").
-      example:
-        firstName: "Leo"
-        lastName: "Mata"
-        age: 26
-        username: "lmata"
-        email: "lmata@gmail.com"
-        role: "ADMIN"
+        302:
+          description: Redirect to the application after GitHub authentication
+        500:
+          description: Internal server error
+
+definitions:
+  LoginCredentials:
+    type: object
+    properties:
+      usernameEmail:
+        type: string
+      password:
+        type: string
+
+  UserRegistration:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+      username:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+
+  User:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+      username:
+        type: string
+      role:
+        type: string
