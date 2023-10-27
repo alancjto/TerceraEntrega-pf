@@ -1,15 +1,15 @@
 class ProductDto {
-    constructor(product) {
-      const { name, description, quantity, price } = product;
-      this.name = name.toLowerCase();
-      this.description = description;
-      this.quantity = parseInt(quantity);
-      this.price = this.formatPrice(price);
-    }
-  
-    formatPrice(price) {
-      return +price;
-    }
+  constructor(product) {
+    const { name, description, quantity, price } = product;
+    this.name = name.toLowerCase();
+    this.description = description;
+    this.quantity = parseInt(quantity);
+    this.price = this.formatPrice(price);
   }
-  
-  module.exports = ProductDto;
+
+  formatPrice(price) {
+    return +price;
+  }
+}
+
+module.exports = ProductDto;
