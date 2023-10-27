@@ -1,182 +1,190 @@
 openapi: 3.0.0
 info:
-  title: Carts Documentation
-  version: 1.0.0
+  version: "1.0.0"
+  title: "Carts API"
+  description: "API for managing shopping carts in your application"
+
+securityDefinitions:
+  BearerToken:
+    type: apiKey
+    name: Authorization
+    in: header
+
 paths:
   /carts/insertion:
     get:
-      summary: Insert carts from the file system
+      summary: Insert shopping carts
+      description: Insert shopping carts from a data source.
       tags:
         - Carts
       responses:
-        '200':
-          description: Carts inserted successfully
+        200:
+          description: Shopping carts inserted successfully
+        500:
+          description: Internal server error
+
   /carts:
     get:
-      summary: Get all carts
+      summary: Get all shopping carts
+      description: Retrieve a list of all shopping carts in the system.
       tags:
         - Carts
       responses:
-        '200':
-          description: List of carts retrieved successfully
+        200:
+          description: Successful operation
+        500:
+          description: Internal server error
+
     post:
-      summary: Create a new cart
+      summary: Create a new shopping cart
+      description: Create a new shopping cart in the system.
       tags:
         - Carts
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Cart'
+      parameters:
+        - name: cart
+          in: body
+          description: Shopping cart object to be created
+          required: true
+          schema:
+            $ref: "#/definitions/CartInput"
+          example:
+            products:
+              - product: "65323942de6f521bf2d57001"
+                quantity: 3
+              - product: "65323942de6f521bf2d5700f"
+                quantity: 1
       responses:
-        '201':
-          description: Cart created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CartResponse'
+        201:
+          description: Shopping cart created successfully
+          schema:
+            $ref: "#/definitions/Cart"
+        400:
+          description: Bad request
+        500:
+          description: Internal server error
+
   /carts/{cid}:
     get:
-      summary: Get a cart by ID
+      summary: Get a shopping cart by ID
+      description: Retrieve shopping cart information by its ID.
       tags:
         - Carts
       parameters:
-        - in: path
-          name: cid
+        - name: cid
+          in: path
+          description: ID of the shopping cart to retrieve
           required: true
-          schema:
-            type: objectId
+          type: string
       responses:
-        '200':
-          description: Cart retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CartResponse'
-        '404':
-          description: Cart not found
+        200:
+          description: Successful operation
+          schema:
+            $ref: "#/definitions/Cart"
+        404:
+          description: Shopping cart not found
+        500:
+          description: Internal server error
+
     put:
-      summary: Update a cart by ID
+      summary: Update a shopping cart by ID
+      description: Update shopping cart information by its ID.
       tags:
         - Carts
+      security:
+      - BearerToken: []
       parameters:
-        - in: path
-          name: cid
+        - name: cid
+          in: path
+          description: ID of the shopping cart to update
+          required: true
+          type: string
+        - name: cart
+          in: body
+          description: Shopping cart object with updated information
           required: true
           schema:
-            type: objectId
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Cart'
+            $ref: "#/definitions/CartInput"
       responses:
-        '200':
-          description: Cart updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CartResponse'
-        '404':
-          description: Cart not found
+        200:
+          description: Shopping cart updated successfully
+          schema:
+            $ref: "#/definitions/Cart"
+        400:
+          description: Bad request
+        404:
+          description: Shopping cart not found
+        500:
+          description: Internal server error
+
     delete:
-      summary: Delete a cart by ID
+      summary: Delete a shopping cart by ID
+      description: Delete a shopping cart by its ID.
       tags:
         - Carts
       parameters:
-        - in: path
-          name: cid
+        - name: cid
+          in: path
+          description: ID of the shopping cart to delete
           required: true
-          schema:
-            type: objectId
+          type: string
       responses:
-        '200':
-          description: Cart deleted successfully
-        '404':
-          description: Cart not found
+        200:
+          description: Shopping cart deleted successfully
+        404:
+          description: Shopping cart not found
+        500:
+          description: Internal server error
+
   /carts/purchase:
     post:
-      summary: Purchase a cart
+      summary: Purchase a shopping cart
+      description: Purchase a shopping cart by its ID.
       tags:
         - Carts
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PurchaseRequest'
+      parameters:
+        - name: cartId
+          in: body
+          description: ID of the shopping cart to purchase
+          required: true
+          schema:
+            type: string
+        - name: email
+          in: body
+          description: Email of the purchaser
+          required: true
+          schema:
+            type: string
       responses:
-        '200':
-          description: Cart purchased successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Ticket'
-        '404':
-          description: Cart not found
-          
-components:
-  schemas:
-    Cart:
-      type: object
-      properties:
-        products:
-          type: array
-          items:
-            type: object
-            properties:
-              product:
-                type: objectId
-                description: The unique identifier for the product.
-              quantity:
-                type: integer
-                description: The quantity of the product in the cart.
-      required:
-        - products
-      example:
-        products:
-          - product: "64f3568a564f7aa08e890d44"
-            quantity: 3
-          - product: "64f3568a564f7aa08e890d5a"
-            quantity: 10
-    CartResponse:
-      type: object
-      properties:
-        message:
-          type: string
-          description: A message describing the operation result.
-        cart:
-          $ref: '#/components/schemas/Cart'
-    PurchaseRequest:
-      type: object
-      properties:
-        cart:
-          type: objectId
-          description: The unique identifier for the cart to purchase.
-        email:
-          type: string
-          description: The email address of the user making the purchase.
-      required:
-        - cart
-        - email
-      example:
-        cart: "64f3568a564f7aa08e890d45"
-        email: "user@example.com"
-    Ticket:
-      type: object
-      properties:
-        code:
-          type: string
-          description: The unique code for the ticket.
-        amount:
-          type: number
-          description: The total amount of the ticket.
-        purchasedBy:
-          type: string
-          description: The email address of the user who purchased the cart.
-      example:
-        code: "2023100201"
-        amount: 1500
-        purchasedBy: "user@example.com"
+        200:
+          description: Shopping cart purchased successfully
+        400:
+          description: Bad request
+        404:
+          description: Shopping cart not found
+        500:
+          description: Internal server error
+
+definitions:
+  CartInput:
+    type: object
+    properties:
+      products:
+        type: array
+        items:
+          $ref: "#/definitions/CartProductInput"
+
+  CartProductInput:
+    type: object
+    properties:
+      product:
+        type: string
+      quantity:
+        type: integer
+
+  Cart:
+    type: object
+    properties:
+      products:
+        type: array
+        items:
+          $ref: "#/definitions/CartProduct"

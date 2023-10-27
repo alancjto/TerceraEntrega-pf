@@ -1,0 +1,68 @@
+openapi: 3.0.0
+info:
+  version: "1.0.0"
+  title: "Mailing API"
+  description: "API for sending emails and SMS messages"
+
+paths:
+  /mailing/email/send:
+    post:
+      summary: Send an email
+      description: Send an email to the specified email address.
+      tags:
+        - Mailing
+      requestBody:
+        description: Email data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/definitions/EmailData"
+        examples:
+          emailExample:
+            value:
+              email: "recipient@example.com"
+      responses:
+        200:
+          description: Email sent successfully
+        500:
+          description: Internal server error
+
+  /mailing/sms/send:
+    post:
+      summary: Send an SMS
+      description: Send an SMS message to the specified phone number.
+      tags:
+        - Mailing
+      requestBody:
+        description: SMS data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/definitions/SMSData"
+        examples:
+          smsExample:
+            value:
+              name: "John Doe"
+              phone: "+1234567890"
+      responses:
+        200:
+          description: SMS sent successfully
+        500:
+          description: Internal server error
+
+definitions:
+  EmailData:
+    type: object
+    properties:
+      email:
+        type: string
+
+  SMSData:
+    type: object
+    properties:
+      name:
+        type: string
+      phone:
+        type: string
